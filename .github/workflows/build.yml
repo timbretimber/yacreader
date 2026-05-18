@@ -9,6 +9,10 @@ on:
     branches:
       - master
       - develop
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 env:
   IS_ORIGINAL_REPO: ${{ github.repository == 'YACReader/yacreader' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop') }}
@@ -74,123 +78,123 @@ jobs:
           path: tarball/*
 
   # Linux Qt6 build
-  linux-qt6:
-    name: Linux (Qt6)
-    runs-on: ubuntu-24.04
-    needs: [initialization, code-format-validation]
-    steps:
-      - uses: actions/checkout@v6
+  # linux-qt6:
+  #   name: Linux (Qt6)
+  #   runs-on: ubuntu-24.04
+  #   needs: [initialization, code-format-validation]
+  #   steps:
+  #     - uses: actions/checkout@v6
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libunarr-dev libgl-dev libgles2-mesa-dev \
-            libfontconfig1-dev libfreetype-dev libxkbcommon-dev libpoppler-qt6-dev \
-            libspeechd-dev
+  #     - name: Install dependencies
+  #       run: |
+  #         sudo apt-get update
+  #         sudo apt-get install -y libunarr-dev libgl-dev libgles2-mesa-dev \
+  #           libfontconfig1-dev libfreetype-dev libxkbcommon-dev libpoppler-qt6-dev \
+  #           libspeechd-dev
 
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: '6.9.3'
-          modules: 'qt5compat qtmultimedia qtimageformats qtshadertools qtspeech'
-          cache: true
+  #     - name: Install Qt
+  #       uses: jurplel/install-qt-action@v4
+  #       with:
+  #         version: '6.9.3'
+  #         modules: 'qt5compat qtmultimedia qtimageformats qtshadertools qtspeech'
+  #         cache: true
 
-      - name: Build
-        run: |
-          cmake -B build \
-            -DDECOMPRESSION_BACKEND=unarr \
-            -DPDF_BACKEND=poppler \
-            -DBUILD_NUMBER="${{ needs.initialization.outputs.build_number }}" \
-            -DCMAKE_BUILD_TYPE=Release
-          cmake --build build --parallel 2
+  #     - name: Build
+  #       run: |
+  #         cmake -B build \
+  #           -DDECOMPRESSION_BACKEND=unarr \
+  #           -DPDF_BACKEND=poppler \
+  #           -DBUILD_NUMBER="${{ needs.initialization.outputs.build_number }}" \
+  #           -DCMAKE_BUILD_TYPE=Release
+  #         cmake --build build --parallel 2
 
-      - name: Run tests
-        run: ctest --test-dir build --output-on-failure
+  #     - name: Run tests
+  #       run: ctest --test-dir build --output-on-failure
 
   # Linux Qt6 with 7zip
-  linux-qt6-7zip:
-    name: Linux (Qt6 + 7zip)
-    runs-on: ubuntu-24.04
-    needs: [initialization, code-format-validation]
-    steps:
-      - uses: actions/checkout@v6
+  # linux-qt6-7zip:
+  #   name: Linux (Qt6 + 7zip)
+  #   runs-on: ubuntu-24.04
+  #   needs: [initialization, code-format-validation]
+  #   steps:
+  #     - uses: actions/checkout@v6
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libgl-dev libgles2-mesa-dev \
-            libfontconfig1-dev libfreetype-dev libxkbcommon-dev libpoppler-qt6-dev \
-            libspeechd-dev
+  #     - name: Install dependencies
+  #       run: |
+  #         sudo apt-get update
+  #         sudo apt-get install -y libgl-dev libgles2-mesa-dev \
+  #           libfontconfig1-dev libfreetype-dev libxkbcommon-dev libpoppler-qt6-dev \
+  #           libspeechd-dev
 
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: '6.9.3'
-          modules: 'qt5compat qtmultimedia qtimageformats qtshadertools qtspeech'
-          cache: true
+  #     - name: Install Qt
+  #       uses: jurplel/install-qt-action@v4
+  #       with:
+  #         version: '6.9.3'
+  #         modules: 'qt5compat qtmultimedia qtimageformats qtshadertools qtspeech'
+  #         cache: true
 
-      - name: Build
-        run: |
-          cmake -B build \
-            -DDECOMPRESSION_BACKEND=7zip \
-            -DPDF_BACKEND=poppler \
-            -DBUILD_NUMBER="${{ needs.initialization.outputs.build_number }}" \
-            -DCMAKE_BUILD_TYPE=Release
-          cmake --build build --parallel 2
+  #     - name: Build
+  #       run: |
+  #         cmake -B build \
+  #           -DDECOMPRESSION_BACKEND=7zip \
+  #           -DPDF_BACKEND=poppler \
+  #           -DBUILD_NUMBER="${{ needs.initialization.outputs.build_number }}" \
+  #           -DCMAKE_BUILD_TYPE=Release
+  #         cmake --build build --parallel 2
 
-      - name: Run tests
-        run: ctest --test-dir build --output-on-failure
+  #     - name: Run tests
+  #       run: ctest --test-dir build --output-on-failure
 
   # macOS Qt6 Universal build
-  macos-qt6-universal:
-    name: macOS (Qt6 Universal)
-    runs-on: macos-15
-    needs: [initialization, code-format-validation]
-    steps:
-      - uses: actions/checkout@v6
+  # macos-qt6-universal:
+  #   name: macOS (Qt6 Universal)
+  #   runs-on: macos-15
+  #   needs: [initialization, code-format-validation]
+  #   steps:
+  #     - uses: actions/checkout@v6
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: '18'
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v6
+  #       with:
+  #         node-version: '18'
 
-      - name: Install dependencies
-        run: |
-          pip3 install --break-system-packages aqtinstall
-          python3 -m aqt install-qt mac desktop 6.9.3 -m qt5compat qtmultimedia qtimageformats qtshadertools qtspeech
-          echo "${{ github.workspace }}/6.9.3/macos/bin" >> $GITHUB_PATH
-          npm install -g appdmg
+  #     - name: Install dependencies
+  #       run: |
+  #         pip3 install --break-system-packages aqtinstall
+  #         python3 -m aqt install-qt mac desktop 6.9.3 -m qt5compat qtmultimedia qtimageformats qtshadertools qtspeech
+  #         echo "${{ github.workspace }}/6.9.3/macos/bin" >> $GITHUB_PATH
+  #         npm install -g appdmg
 
-      - name: Import Code Signing Certificate
-        if: github.repository == 'YACReader/yacreader' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
-        uses: apple-actions/import-codesign-certs@v2
-        with:
-          p12-file-base64: ${{ secrets.MACOS_CERTIFICATE_P12_BASE64 }}
-          p12-password: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+  #     - name: Import Code Signing Certificate
+  #       if: github.repository == 'YACReader/yacreader' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
+  #       uses: apple-actions/import-codesign-certs@v2
+  #       with:
+  #         p12-file-base64: ${{ secrets.MACOS_CERTIFICATE_P12_BASE64 }}
+  #         p12-password: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
 
-      - name: Build
-        env:
-          MACOSX_DEPLOYMENT_TARGET: "11"
-        run: |
-          VERSION="$(tr -d '\r\n' < VERSION)"
-          SKIP_CODESIGN="${{ env.IS_FORK }}"
-          SKIP_CODESIGN=$(echo "$SKIP_CODESIGN" | tr '[:upper:]' '[:lower:]')
-          ./compileOSX.sh $VERSION ${{ needs.initialization.outputs.build_number }} $SKIP_CODESIGN Qt6 universal
+  #     - name: Build
+  #       env:
+  #         MACOSX_DEPLOYMENT_TARGET: "11"
+  #       run: |
+  #         VERSION="$(tr -d '\r\n' < VERSION)"
+  #         SKIP_CODESIGN="${{ env.IS_FORK }}"
+  #         SKIP_CODESIGN=$(echo "$SKIP_CODESIGN" | tr '[:upper:]' '[:lower:]')
+  #         ./compileOSX.sh $VERSION ${{ needs.initialization.outputs.build_number }} $SKIP_CODESIGN Qt6 universal
 
-      - name: Run tests
-        run: ctest --test-dir build --output-on-failure
+  #     - name: Run tests
+  #       run: ctest --test-dir build --output-on-failure
 
-      - name: Notarize
-        if: github.repository == 'YACReader/yacreader' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
-        run: |
-          xcrun notarytool submit *.dmg --apple-id "${{ secrets.MACOS_APPLE_ID }}" --team-id "${{ secrets.MACOS_TEAM_ID }}" --password "${{ secrets.MACOS_APP_PASSWORD }}" --wait
-          xcrun stapler staple *.dmg
+  #     - name: Notarize
+  #       if: github.repository == 'YACReader/yacreader' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
+  #       run: |
+  #         xcrun notarytool submit *.dmg --apple-id "${{ secrets.MACOS_APPLE_ID }}" --team-id "${{ secrets.MACOS_TEAM_ID }}" --password "${{ secrets.MACOS_APP_PASSWORD }}" --wait
+  #         xcrun stapler staple *.dmg
 
-      - name: Upload DMG
-        uses: actions/upload-artifact@v6
-        with:
-          name: macos-qt6-universal-${{ needs.initialization.outputs.build_number }}-dmg
-          path: "*.dmg"
+  #     - name: Upload DMG
+  #       uses: actions/upload-artifact@v6
+  #       with:
+  #         name: macos-qt6-universal-${{ needs.initialization.outputs.build_number }}-dmg
+  #         path: "*.dmg"
 
   # Windows x64 Qt6 build
   windows-x64-qt6:
@@ -203,8 +207,8 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.10'
-          architecture: 'x64'
+          python-version: "3.10"
+          architecture: "x64"
 
       - name: Install dependencies
         shell: cmd
@@ -232,44 +236,44 @@ jobs:
           set PATH=C:\Qt\6.9.3\msvc2022_64\bin;%PATH%
           ctest --test-dir build --output-on-failure
 
-      - name: Upload executables for signing
-        if: github.repository == 'YACReader/yacreader' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
-        uses: actions/upload-artifact@v6
-        id: upload_executables
-        with:
-          name: windows-x64-qt6-executables-unsigned-${{ needs.initialization.outputs.build_number }}
-          path: |
-            build/bin/YACReader.exe
-            build/bin/YACReaderLibrary.exe
-            build/bin/YACReaderLibraryServer.exe
+      # - name: Upload executables for signing
+      #   if: github.repository == 'YACReader/yacreader' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
+      #   uses: actions/upload-artifact@v6
+      #   id: upload_executables
+      #   with:
+      #     name: windows-x64-qt6-executables-unsigned-${{ needs.initialization.outputs.build_number }}
+      #     path: |
+      #       build/bin/YACReader.exe
+      #       build/bin/YACReaderLibrary.exe
+      #       build/bin/YACReaderLibraryServer.exe
 
-      - name: Sign executables with SignPath
-        if: github.repository == 'YACReader/yacreader' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
-        uses: signpath/github-action-submit-signing-request@v1
-        with:
-          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
-          organization-id: ${{ secrets.SIGNPATH_ORGANIZATION_ID }}
-          project-slug: 'yacreader'
-          signing-policy-slug: 'release-signing'
-          artifact-configuration-slug: 'zipped-files'
-          github-artifact-id: ${{ steps.upload_executables.outputs.artifact-id }}
-          wait-for-completion: true
-          wait-for-completion-timeout-in-seconds: "7200"
-          output-artifact-directory: build/bin/signed
+      # - name: Sign executables with SignPath
+      #   if: github.repository == 'YACReader/yacreader' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
+      #   uses: signpath/github-action-submit-signing-request@v1
+      #   with:
+      #     api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+      #     organization-id: ${{ secrets.SIGNPATH_ORGANIZATION_ID }}
+      #     project-slug: 'yacreader'
+      #     signing-policy-slug: 'release-signing'
+      #     artifact-configuration-slug: 'zipped-files'
+      #     github-artifact-id: ${{ steps.upload_executables.outputs.artifact-id }}
+      #     wait-for-completion: true
+      #     wait-for-completion-timeout-in-seconds: "7200"
+      #     output-artifact-directory: build/bin/signed
 
-      - name: Replace with signed executables
-        if: github.repository == 'YACReader/yacreader' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
-        shell: pwsh
-        run: |
-          Write-Host "=== Replacing executables with signed versions ==="
-          Get-ChildItem -Path "build/bin/signed" -Filter "*.exe" | ForEach-Object {
-            $destPath = "build/bin/$($_.Name)"
-            Write-Host "Moving signed: $($_.Name) -> $destPath"
-            Move-Item -Path $_.FullName -Destination $destPath -Force
-            Write-Host "  Moved successfully"
-          }
-          Remove-Item -Path "build/bin/signed" -Recurse -Force -ErrorAction SilentlyContinue
-          Write-Host "Signed executables are ready for installer creation"
+      # - name: Replace with signed executables
+      #   if: github.repository == 'YACReader/yacreader' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
+      #   shell: pwsh
+      #   run: |
+      #     Write-Host "=== Replacing executables with signed versions ==="
+      #     Get-ChildItem -Path "build/bin/signed" -Filter "*.exe" | ForEach-Object {
+      #       $destPath = "build/bin/$($_.Name)"
+      #       Write-Host "Moving signed: $($_.Name) -> $destPath"
+      #       Move-Item -Path $_.FullName -Destination $destPath -Force
+      #       Write-Host "  Moved successfully"
+      #     }
+      #     Remove-Item -Path "build/bin/signed" -Recurse -Force -ErrorAction SilentlyContinue
+      #     Write-Host "Signed executables are ready for installer creation"
 
       - name: Create installer
         shell: cmd
@@ -277,10 +281,10 @@ jobs:
         run: |
           call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           set PATH=C:\Qt\6.9.3\msvc2022_64\bin;%PATH%
-          .\create_installer.cmd x64 7z ${{ needs.initialization.outputs.build_number }}
+          .\create_installer.cmd x64 7z build
 
       - name: Verify installer was created
-        if: github.repository == 'YACReader/yacreader' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
+        # if: github.repository == 'YACReader/yacreader' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
         shell: pwsh
         run: |
           if (-not (Test-Path "ci/win/Output/YACReader*.exe")) {
@@ -288,245 +292,245 @@ jobs:
           }
           Get-ChildItem "ci/win/Output/YACReader*.exe"
 
-      - name: Upload unsigned installer
-        if: github.repository == 'YACReader/yacreader' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
+      - name: Upload unsigned installer-87
+        # if: github.repository == 'YACReader/yacreader' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
         uses: actions/upload-artifact@v6
         id: upload_unsigned
         with:
-          name: windows-x64-qt6-unsigned-${{ needs.initialization.outputs.build_number }}
+          name: windows-x64-qt6-unsigned-installer-87
           path: ci/win/Output/YACReader*.exe
 
-      - name: Submit to SignPath
-        if: github.repository == 'YACReader/yacreader' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
-        uses: signpath/github-action-submit-signing-request@v1
-        with:
-          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
-          organization-id: ${{ secrets.SIGNPATH_ORGANIZATION_ID }}
-          project-slug: 'yacreader'
-          signing-policy-slug: 'release-signing'
-          artifact-configuration-slug: 'zipped-files'
-          github-artifact-id: ${{ steps.upload_unsigned.outputs.artifact-id }}
-          wait-for-completion: true
-          wait-for-completion-timeout-in-seconds: "7200"
-          output-artifact-directory: ci/win/Output/signed
+      # - name: Submit to SignPath
+      #   if: github.repository == 'YACReader/yacreader' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
+      #   uses: signpath/github-action-submit-signing-request@v1
+      #   with:
+      #     api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+      #     organization-id: ${{ secrets.SIGNPATH_ORGANIZATION_ID }}
+      #     project-slug: 'yacreader'
+      #     signing-policy-slug: 'release-signing'
+      #     artifact-configuration-slug: 'zipped-files'
+      #     github-artifact-id: ${{ steps.upload_unsigned.outputs.artifact-id }}
+      #     wait-for-completion: true
+      #     wait-for-completion-timeout-in-seconds: "7200"
+      #     output-artifact-directory: ci/win/Output/signed
 
-      - name: Replace with signed installer
-        if: github.repository == 'YACReader/yacreader' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
-        shell: pwsh
-        run: |
-          Write-Host "=== Files in signed directory before move ==="
-          Get-ChildItem -Path "ci/win/Output/signed" -Filter "*.exe" | ForEach-Object { Write-Host "  $($_.Name) - $($_.Length) bytes" }
+      # - name: Replace with signed installer
+      #   if: github.repository == 'YACReader/yacreader' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
+      #   shell: pwsh
+      #   run: |
+      #     Write-Host "=== Files in signed directory before move ==="
+      #     Get-ChildItem -Path "ci/win/Output/signed" -Filter "*.exe" | ForEach-Object { Write-Host "  $($_.Name) - $($_.Length) bytes" }
 
-          $signedFiles = Get-ChildItem -Path "ci/win/Output/signed" -Filter "*.exe"
-          foreach ($signedFile in $signedFiles) {
-            $destPath = "ci/win/Output/$($signedFile.Name)"
-            Write-Host "Moving signed: $($signedFile.Name) -> $destPath"
-            Move-Item -Path $signedFile.FullName -Destination $destPath -Force
-            Write-Host "  Moved successfully"
-          }
+      #     $signedFiles = Get-ChildItem -Path "ci/win/Output/signed" -Filter "*.exe"
+      #     foreach ($signedFile in $signedFiles) {
+      #       $destPath = "ci/win/Output/$($signedFile.Name)"
+      #       Write-Host "Moving signed: $($signedFile.Name) -> $destPath"
+      #       Move-Item -Path $signedFile.FullName -Destination $destPath -Force
+      #       Write-Host "  Moved successfully"
+      #     }
 
-          Write-Host "=== Files in Output directory after move ==="
-          Get-ChildItem -Path "ci/win/Output" -Filter "*.exe" | ForEach-Object { Write-Host "  $($_.Name) - $($_.Length) bytes" }
+      #     Write-Host "=== Files in Output directory after move ==="
+      #     Get-ChildItem -Path "ci/win/Output" -Filter "*.exe" | ForEach-Object { Write-Host "  $($_.Name) - $($_.Length) bytes" }
 
-          Remove-Item -Path "ci/win/Output/signed" -Recurse -Force -ErrorAction SilentlyContinue
-          Write-Host "Cleaned up signed directory"
+      #     Remove-Item -Path "ci/win/Output/signed" -Recurse -Force -ErrorAction SilentlyContinue
+      #     Write-Host "Cleaned up signed directory"
 
-      - name: Upload installer
-        uses: actions/upload-artifact@v6
-        with:
-          name: windows-x64-qt6-${{ needs.initialization.outputs.build_number }}
-          path: ci/win/Output/YACReader*.exe
+      # - name: Upload installer
+      #   uses: actions/upload-artifact@v6
+      #   with:
+      #     name: windows-x64-qt6-${{ needs.initialization.outputs.build_number }}
+      #     path: ci/win/Output/YACReader*.exe
 
-  # Windows ARM64 Qt6 build
-  windows-arm64-qt6:
-    name: Windows ARM64 (Qt6)
-    runs-on: windows-2022
-    needs: [initialization, code-format-validation]
-    steps:
-      - uses: actions/checkout@v6
+  # # Windows ARM64 Qt6 build
+  # # windows-arm64-qt6:
+  #   name: Windows ARM64 (Qt6)
+  #   runs-on: windows-2022
+  #   needs: [initialization, code-format-validation]
+  #   steps:
+  #     - uses: actions/checkout@v6
 
-      - name: Setup Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.10'
-          architecture: 'x64'
+  #     - name: Setup Python
+  #       uses: actions/setup-python@v6
+  #       with:
+  #         python-version: '3.10'
+  #         architecture: 'x64'
 
-      - name: Install dependencies
-        shell: cmd
-        run: |
-          pip install aqtinstall
-          mkdir C:\Qt
-          python -m aqt install-qt windows desktop 6.9.3 win64_msvc2022_64 -O c:\Qt -m qt5compat qtmultimedia qtimageformats qtshadertools qtspeech
-          python -m aqt install-qt windows desktop 6.9.3 win64_msvc2022_arm64_cross_compiled -O c:\Qt -m qt5compat qtmultimedia qtimageformats qtshadertools qtspeech
-          dir C:\Qt\6.9.3\msvc2022_arm64\bin
-          curl.exe -L --retry 5 --retry-delay 5 --retry-all-errors "https://aka.ms/vs/17/release/vc_redist.arm64.exe" -o "%GITHUB_WORKSPACE%\vc_redist.arm64.exe"
-          where iscc
+  #     - name: Install dependencies
+  #       shell: cmd
+  #       run: |
+  #         pip install aqtinstall
+  #         mkdir C:\Qt
+  #         python -m aqt install-qt windows desktop 6.9.3 win64_msvc2022_64 -O c:\Qt -m qt5compat qtmultimedia qtimageformats qtshadertools qtspeech
+  #         python -m aqt install-qt windows desktop 6.9.3 win64_msvc2022_arm64_cross_compiled -O c:\Qt -m qt5compat qtmultimedia qtimageformats qtshadertools qtspeech
+  #         dir C:\Qt\6.9.3\msvc2022_arm64\bin
+  #         curl.exe -L --retry 5 --retry-delay 5 --retry-all-errors "https://aka.ms/vs/17/release/vc_redist.arm64.exe" -o "%GITHUB_WORKSPACE%\vc_redist.arm64.exe"
+  #         where iscc
 
-      - name: Build
-        shell: cmd
-        run: |
-          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" amd64_arm64
-          set PATH=C:\Qt\6.9.3\msvc2022_arm64\bin;%PATH%
-          cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DDECOMPRESSION_BACKEND=7zip -DPDF_BACKEND=pdfium -DBUILD_NUMBER="${{ needs.initialization.outputs.build_number }}" -DCMAKE_PREFIX_PATH=C:\Qt\6.9.3\msvc2022_arm64 -DQT_HOST_PATH=C:\Qt\6.9.3\msvc2022_64 -DCMAKE_SYSTEM_PROCESSOR=ARM64
-          cmake --build build --parallel
+  #     - name: Build
+  #       shell: cmd
+  #       run: |
+  #         call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" amd64_arm64
+  #         set PATH=C:\Qt\6.9.3\msvc2022_arm64\bin;%PATH%
+  #         cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DDECOMPRESSION_BACKEND=7zip -DPDF_BACKEND=pdfium -DBUILD_NUMBER="${{ needs.initialization.outputs.build_number }}" -DCMAKE_PREFIX_PATH=C:\Qt\6.9.3\msvc2022_arm64 -DQT_HOST_PATH=C:\Qt\6.9.3\msvc2022_64 -DCMAKE_SYSTEM_PROCESSOR=ARM64
+  #         cmake --build build --parallel
 
-      - name: Upload executables for signing
-        if: github.repository == 'YACReader/yacreader' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
-        uses: actions/upload-artifact@v6
-        id: upload_executables
-        with:
-          name: windows-arm64-qt6-executables-unsigned-${{ needs.initialization.outputs.build_number }}
-          path: |
-            build/bin/YACReader.exe
-            build/bin/YACReaderLibrary.exe
-            build/bin/YACReaderLibraryServer.exe
+  #     - name: Upload executables for signing
+  #       if: github.repository == 'YACReader/yacreader' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
+  #       uses: actions/upload-artifact@v6
+  #       id: upload_executables
+  #       with:
+  #         name: windows-arm64-qt6-executables-unsigned-${{ needs.initialization.outputs.build_number }}
+  #         path: |
+  #           build/bin/YACReader.exe
+  #           build/bin/YACReaderLibrary.exe
+  #           build/bin/YACReaderLibraryServer.exe
 
-      - name: Submit to SignPath
-        if: github.repository == 'YACReader/yacreader' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
-        uses: signpath/github-action-submit-signing-request@v1
-        with:
-          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
-          organization-id: ${{ secrets.SIGNPATH_ORGANIZATION_ID }}
-          project-slug: 'yacreader'
-          signing-policy-slug: 'release-signing'
-          artifact-configuration-slug: 'zipped-files'
-          github-artifact-id: ${{ steps.upload_executables.outputs.artifact-id }}
-          wait-for-completion: true
-          wait-for-completion-timeout-in-seconds: "7200"
-          output-artifact-directory: 'build/bin/signed'
+  #     - name: Submit to SignPath
+  #       if: github.repository == 'YACReader/yacreader' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
+  #       uses: signpath/github-action-submit-signing-request@v1
+  #       with:
+  #         api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+  #         organization-id: ${{ secrets.SIGNPATH_ORGANIZATION_ID }}
+  #         project-slug: 'yacreader'
+  #         signing-policy-slug: 'release-signing'
+  #         artifact-configuration-slug: 'zipped-files'
+  #         github-artifact-id: ${{ steps.upload_executables.outputs.artifact-id }}
+  #         wait-for-completion: true
+  #         wait-for-completion-timeout-in-seconds: "7200"
+  #         output-artifact-directory: 'build/bin/signed'
 
-      - name: Replace executables with signed versions
-        if: github.repository == 'YACReader/yacreader' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
-        shell: pwsh
-        run: |
-          Copy-Item "build/bin/signed/YACReader.exe" "build/bin/YACReader.exe" -Force
-          Copy-Item "build/bin/signed/YACReaderLibrary.exe" "build/bin/YACReaderLibrary.exe" -Force
-          Copy-Item "build/bin/signed/YACReaderLibraryServer.exe" "build/bin/YACReaderLibraryServer.exe" -Force
-          Remove-Item -Path "build/bin/signed" -Recurse -Force -ErrorAction SilentlyContinue
-          Write-Host "Signed executables are ready for installer creation"
+  #     - name: Replace executables with signed versions
+  #       if: github.repository == 'YACReader/yacreader' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
+  #       shell: pwsh
+  #       run: |
+  #         Copy-Item "build/bin/signed/YACReader.exe" "build/bin/YACReader.exe" -Force
+  #         Copy-Item "build/bin/signed/YACReaderLibrary.exe" "build/bin/YACReaderLibrary.exe" -Force
+  #         Copy-Item "build/bin/signed/YACReaderLibraryServer.exe" "build/bin/YACReaderLibraryServer.exe" -Force
+  #         Remove-Item -Path "build/bin/signed" -Recurse -Force -ErrorAction SilentlyContinue
+  #         Write-Host "Signed executables are ready for installer creation"
 
-      - name: Create installer
-        shell: cmd
-        working-directory: ci/win
-        run: |
-          set PATH=C:\Qt\6.9.3\msvc2022_64\bin;%PATH%
-          .\create_installer.cmd arm64 7z ${{ needs.initialization.outputs.build_number }}
+  #     - name: Create installer
+  #       shell: cmd
+  #       working-directory: ci/win
+  #       run: |
+  #         set PATH=C:\Qt\6.9.3\msvc2022_64\bin;%PATH%
+  #         .\create_installer.cmd arm64 7z ${{ needs.initialization.outputs.build_number }}
 
-      - name: Verify installer was created
-        if: github.repository == 'YACReader/yacreader' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
-        shell: pwsh
-        run: |
-          if (-not (Test-Path "ci/win/Output/YACReader*.exe")) {
-            throw "Installer file was not created"
-          }
-          Get-ChildItem "ci/win/Output/YACReader*.exe"
+  #     - name: Verify installer was created
+  #       if: github.repository == 'YACReader/yacreader' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
+  #       shell: pwsh
+  #       run: |
+  #         if (-not (Test-Path "ci/win/Output/YACReader*.exe")) {
+  #           throw "Installer file was not created"
+  #         }
+  #         Get-ChildItem "ci/win/Output/YACReader*.exe"
 
-      - name: Upload unsigned installer
-        if: github.repository == 'YACReader/yacreader' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
-        uses: actions/upload-artifact@v6
-        id: upload_unsigned
-        with:
-          name: windows-arm64-qt6-unsigned-${{ needs.initialization.outputs.build_number }}
-          path: ci/win/Output/YACReader*.exe
+  #     - name: Upload unsigned installer
+  #       if: github.repository == 'YACReader/yacreader' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
+  #       uses: actions/upload-artifact@v6
+  #       id: upload_unsigned
+  #       with:
+  #         name: windows-arm64-qt6-unsigned-${{ needs.initialization.outputs.build_number }}
+  #         path: ci/win/Output/YACReader*.exe
 
-      - name: Submit to SignPath
-        if: github.repository == 'YACReader/yacreader' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
-        uses: signpath/github-action-submit-signing-request@v1
-        with:
-          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
-          organization-id: ${{ secrets.SIGNPATH_ORGANIZATION_ID }}
-          project-slug: 'yacreader'
-          signing-policy-slug: 'release-signing'
-          artifact-configuration-slug: 'zipped-files'
-          github-artifact-id: ${{ steps.upload_unsigned.outputs.artifact-id }}
-          wait-for-completion: true
-          wait-for-completion-timeout-in-seconds: "7200"
-          output-artifact-directory: 'ci/win/Output/signed'
+  #     - name: Submit to SignPath
+  #       if: github.repository == 'YACReader/yacreader' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
+  #       uses: signpath/github-action-submit-signing-request@v1
+  #       with:
+  #         api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+  #         organization-id: ${{ secrets.SIGNPATH_ORGANIZATION_ID }}
+  #         project-slug: 'yacreader'
+  #         signing-policy-slug: 'release-signing'
+  #         artifact-configuration-slug: 'zipped-files'
+  #         github-artifact-id: ${{ steps.upload_unsigned.outputs.artifact-id }}
+  #         wait-for-completion: true
+  #         wait-for-completion-timeout-in-seconds: "7200"
+  #         output-artifact-directory: 'ci/win/Output/signed'
 
-      - name: Replace with signed installer and cleanup
-        if: github.repository == 'YACReader/yacreader' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
-        shell: pwsh
-        working-directory: ci/win/Output
-        run: |
-          $signedFiles = Get-ChildItem "signed/YACReader*.exe"
-          foreach ($file in $signedFiles) {
-            $destName = $file.Name
-            Copy-Item $file.FullName $destName -Force
-            Write-Host "Replaced with signed: $destName"
-          }
-          Remove-Item -Path "signed" -Recurse -Force -ErrorAction SilentlyContinue
-          Write-Host "Cleaned up signed directory"
+  #     - name: Replace with signed installer and cleanup
+  #       if: github.repository == 'YACReader/yacreader' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
+  #       shell: pwsh
+  #       working-directory: ci/win/Output
+  #       run: |
+  #         $signedFiles = Get-ChildItem "signed/YACReader*.exe"
+  #         foreach ($file in $signedFiles) {
+  #           $destName = $file.Name
+  #           Copy-Item $file.FullName $destName -Force
+  #           Write-Host "Replaced with signed: $destName"
+  #         }
+  #         Remove-Item -Path "signed" -Recurse -Force -ErrorAction SilentlyContinue
+  #         Write-Host "Cleaned up signed directory"
 
-      - name: Upload installer
-        uses: actions/upload-artifact@v6
-        with:
-          name: windows-arm64-qt6-${{ needs.initialization.outputs.build_number }}
-          path: ci/win/Output/YACReader*.exe
+  #     - name: Upload installer
+  #       uses: actions/upload-artifact@v6
+  #       with:
+  #         name: windows-arm64-qt6-${{ needs.initialization.outputs.build_number }}
+  #         path: ci/win/Output/YACReader*.exe
 
   # Docker amd64 build
-  docker-amd64:
-    name: Docker amd64 Image
-    runs-on: ubuntu-latest
-    needs: [initialization, code-format-validation]
-    steps:
-      - uses: actions/checkout@v6
+  # docker-amd64:
+  #   name: Docker amd64 Image
+  #   runs-on: ubuntu-latest
+  #   needs: [initialization, code-format-validation]
+  #   steps:
+  #     - uses: actions/checkout@v6
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+  #     - name: Set up Docker Buildx
+  #       uses: docker/setup-buildx-action@v4
 
-      - name: Build amd64 Image
-        working-directory: docker
-        run: |
-          docker build --no-cache --platform linux/amd64 -f Dockerfile \
-            --build-arg YACR_REPOSITORY=${{ github.event.pull_request.head.repo.clone_url || format('https://github.com/{0}.git', github.repository) }} \
-            --build-arg YACR_VERSION=${{ github.event.pull_request.head.sha || github.sha }} \
-            -t yacreader/yacreaderlibraryserver:develop-amd64 .
-          docker save yacreader/yacreaderlibraryserver:develop-amd64 -o amd64.tar
+  #     - name: Build amd64 Image
+  #       working-directory: docker
+  #       run: |
+  #         docker build --no-cache --platform linux/amd64 -f Dockerfile \
+  #           --build-arg YACR_REPOSITORY=${{ github.event.pull_request.head.repo.clone_url || format('https://github.com/{0}.git', github.repository) }} \
+  #           --build-arg YACR_VERSION=${{ github.event.pull_request.head.sha || github.sha }} \
+  #           -t yacreader/yacreaderlibraryserver:develop-amd64 .
+  #         docker save yacreader/yacreaderlibraryserver:develop-amd64 -o amd64.tar
 
-      - name: Upload Docker Image
-        uses: actions/upload-artifact@v6
-        with:
-          name: docker-amd64
-          path: docker/amd64.tar
+  #     - name: Upload Docker Image
+  #       uses: actions/upload-artifact@v6
+  #       with:
+  #         name: docker-amd64
+  #         path: docker/amd64.tar
 
   # Docker arm64 build (native)
-  docker-arm64:
-    name: Docker arm64 Image
-    runs-on: ubuntu-24.04-arm
-    needs: [initialization, code-format-validation]
-    steps:
-      - uses: actions/checkout@v6
+  # docker-arm64:
+  # name: Docker arm64 Image
+  # runs-on: ubuntu-24.04-arm
+  # needs: [initialization, code-format-validation]
+  # steps:
+  #   - uses: actions/checkout@v6
 
-      - name: Build arm64 Image (native)
-        working-directory: docker
-        run: |
-          docker build --no-cache -f Dockerfile.aarch64 \
-            --build-arg YACR_REPOSITORY=${{ github.event.pull_request.head.repo.clone_url || format('https://github.com/{0}.git', github.repository) }} \
-            --build-arg YACR_VERSION=${{ github.event.pull_request.head.sha || github.sha }} \
-            -t yacreader/yacreaderlibraryserver:develop-arm64 .
-          docker save yacreader/yacreaderlibraryserver:develop-arm64 -o arm64.tar
+  #   - name: Build arm64 Image (native)
+  #     working-directory: docker
+  #     run: |
+  #       docker build --no-cache -f Dockerfile.aarch64 \
+  #         --build-arg YACR_REPOSITORY=${{ github.event.pull_request.head.repo.clone_url || format('https://github.com/{0}.git', github.repository) }} \
+  #         --build-arg YACR_VERSION=${{ github.event.pull_request.head.sha || github.sha }} \
+  #         -t yacreader/yacreaderlibraryserver:develop-arm64 .
+  #       docker save yacreader/yacreaderlibraryserver:develop-arm64 -o arm64.tar
 
-      - name: Upload Docker Image
-        uses: actions/upload-artifact@v6
-        with:
-          name: docker-arm64
-          path: docker/arm64.tar
+  #   - name: Upload Docker Image
+  #     uses: actions/upload-artifact@v6
+  #     with:
+  #       name: docker-arm64
+  #       path: docker/arm64.tar
 
   # Publish dev builds
   publish-dev-builds:
     name: Publish Dev Builds
-    if: github.repository == 'YACReader/yacreader' && github.ref == 'refs/heads/develop'
+    # if: github.repository == 'YACReader/yacreader' && github.ref == 'refs/heads/develop'
     runs-on: ubuntu-24.04
     needs:
       - initialization
       - source-tarball
-      - linux-qt6
-      - linux-qt6-7zip
-      - macos-qt6-universal
+      # - linux-qt6
+      # - linux-qt6-7zip
+      # - macos-qt6-universal
       - windows-x64-qt6
-      - windows-arm64-qt6
-      - docker-amd64
-      - docker-arm64
+      # - windows-arm64-qt6
+      # - docker-amd64
+      # - docker-arm64
     steps:
       - uses: actions/checkout@v6
 
@@ -546,109 +550,108 @@ jobs:
         with:
           version: ${{ steps.version.outputs.version }}
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+      # - name: Login to Docker Hub
+      #   uses: docker/login-action@v3
+      #   with:
+      #     username: ${{ secrets.DOCKER_USERNAME }}
+      #     password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+      # - name: Set up Docker Buildx
+      #   uses: docker/setup-buildx-action@v4
 
-      - name: Push Docker Images
-        run: |
-          for arch in amd64 arm64; do
-            docker load -i staging/${arch}.tar
-            docker push yacreader/yacreaderlibraryserver:develop-${arch}
-            rm staging/${arch}.tar
-          done
+      # - name: Push Docker Images
+      #   run: |
+      #     for arch in amd64 arm64; do
+      #       docker load -i staging/${arch}.tar
+      #       docker push yacreader/yacreaderlibraryserver:develop-${arch}
+      #       rm staging/${arch}.tar
+      #     done
 
-          docker buildx imagetools create \
-            -t yacreader/yacreaderlibraryserver:develop \
-            yacreader/yacreaderlibraryserver:develop-amd64 \
-            yacreader/yacreaderlibraryserver:develop-arm64
+      #     docker buildx imagetools create \
+      #       -t yacreader/yacreaderlibraryserver:develop \
+      #       yacreader/yacreaderlibraryserver:develop-amd64 \
+      #       yacreader/yacreaderlibraryserver:develop-arm64
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
-          repository: YACReader/yacreader-dev-builds
+          repository: ${{ github.repository }}
           tag_name: ${{ steps.version.outputs.version }}
           name: ${{ steps.version.outputs.version }}
           body: ${{ steps.release_notes.outputs.notes }}
-          target_commitish: 25313e3d4d03fcbe44d3943db23bc03bbd1a5205
+          target_commitish: ${{ github.sha }}
           files: staging/*
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
+          GITHUB_TOKEN: $GITHUB_TOKEN
 
   # Publish release builds
-  publish-release:
-    name: Publish Release
-    if: github.repository == 'YACReader/yacreader' && github.ref == 'refs/heads/master'
-    runs-on: ubuntu-24.04
-    needs:
-      - initialization
-      - source-tarball
-      - linux-qt6
-      - linux-qt6-7zip
-      - macos-qt6-universal
-      - windows-x64-qt6
-      - windows-arm64-qt6
-      - docker-amd64
-      - docker-arm64
-    steps:
-      - uses: actions/checkout@v6
+  # publish-release:
+  #   name: Publish Release
+  #   if: github.repository == 'YACReader/yacreader' && github.ref == 'refs/heads/master'
+  #   runs-on: ubuntu-24.04
+  #   needs:
+  #     - initialization
+  #     - source-tarball
+  #     # - linux-qt6
+  #     # - linux-qt6-7zip
+  #     # - macos-qt6-universal
+  #     - windows-x64-qt6
+  #     # - windows-arm64-qt6
+  #     # - docker-amd64
+  #     # - docker-arm64
+  #   steps:
+  #     - uses: actions/checkout@v6
 
-      - name: Prepare release artifacts
-        uses: ./.github/actions/prepare-release-artifacts
+  #     - name: Prepare release artifacts
+  #       uses: ./.github/actions/prepare-release-artifacts
 
-      - name: Get version
-        id: version
-        run: |
-          VERSION="$(tr -d '\r\n' < VERSION)"
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Version: $VERSION"
+  #     - name: Get version
+  #       id: version
+  #       run: |
+  #         VERSION="$(tr -d '\r\n' < VERSION)"
+  #         echo "version=$VERSION" >> $GITHUB_OUTPUT
+  #         echo "Version: $VERSION"
 
-      - name: Extract release notes
-        id: release_notes
-        uses: ./.github/actions/extract-release-notes
-        with:
-          version: ${{ steps.version.outputs.version }}
+  #     - name: Extract release notes
+  #       id: release_notes
+  #       uses: ./.github/actions/extract-release-notes
+  #       with:
+  #         version: ${{ steps.version.outputs.version }}
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+  #     - name: Login to Docker Hub
+  #       uses: docker/login-action@v3
+  #       with:
+  #         username: ${{ secrets.DOCKER_USERNAME }}
+  #         password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+  #     - name: Set up Docker Buildx
+  #       uses: docker/setup-buildx-action@v4
 
-      - name: Push Docker Images
-        run: |
-          for arch in amd64 arm64; do
-            docker load -i staging/${arch}.tar
-            docker tag yacreader/yacreaderlibraryserver:develop-${arch} yacreader/yacreaderlibraryserver:latest-${arch}
-            docker push yacreader/yacreaderlibraryserver:latest-${arch}
-            rm staging/${arch}.tar
-          done
+  #     - name: Push Docker Images
+  #       run: |
+  #         for arch in amd64 arm64; do
+  #           docker load -i staging/${arch}.tar
+  #           docker tag yacreader/yacreaderlibraryserver:develop-${arch} yacreader/yacreaderlibraryserver:latest-${arch}
+  #           docker push yacreader/yacreaderlibraryserver:latest-${arch}
+  #           rm staging/${arch}.tar
+  #         done
 
-          docker buildx imagetools create \
-            -t yacreader/yacreaderlibraryserver:latest \
-            yacreader/yacreaderlibraryserver:latest-amd64 \
-            yacreader/yacreaderlibraryserver:latest-arm64
+  #         docker buildx imagetools create \
+  #           -t yacreader/yacreaderlibraryserver:latest \
+  #           yacreader/yacreaderlibraryserver:latest-amd64 \
+  #           yacreader/yacreaderlibraryserver:latest-arm64
 
-          docker buildx imagetools create \
-            -t yacreader/yacreaderlibraryserver:${{ steps.version.outputs.version }} \
-            yacreader/yacreaderlibraryserver:latest-amd64 \
-            yacreader/yacreaderlibraryserver:latest-arm64
+  #         docker buildx imagetools create \
+  #           -t yacreader/yacreaderlibraryserver:${{ steps.version.outputs.version }} \
+  #           yacreader/yacreaderlibraryserver:latest-amd64 \
+  #           yacreader/yacreaderlibraryserver:latest-arm64
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ steps.version.outputs.version }}
-          name: ${{ steps.version.outputs.version }}
-          body: ${{ steps.release_notes.outputs.notes }}
-          files: staging/*
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+  #     - name: Create GitHub Release
+  #       uses: softprops/action-gh-release@v1
+  #       with:
+  #         tag_name: ${{ steps.version.outputs.version }}
+  #         name: ${{ steps.version.outputs.version }}
+  #         body: ${{ steps.release_notes.outputs.notes }}
+  #         files: staging/*
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
